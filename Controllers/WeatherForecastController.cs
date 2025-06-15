@@ -6,6 +6,10 @@ namespace whatsapp_clone_backend.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
+        private readonly DbContext _db;
+
+
+
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -13,9 +17,10 @@ namespace whatsapp_clone_backend.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, DbContext db)
         {
             _logger = logger;
+            _db = db;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -29,5 +34,23 @@ namespace whatsapp_clone_backend.Controllers
             })
             .ToArray();
         }
+
+        [HttpGet("test-connection")]
+        public IActionResult TestConnection()
+        {
+            try
+            {
+                var result = _db.ExecuteScalar("SELECT 1");
+                return Ok("Connection successful. Result: " + result.ToString());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Connection failed: " + ex.Message);
+            }
+        }
+
     }
+
+
+
 }
