@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Mysqlx;
 using Org.BouncyCastle.Ocsp;
+using Swashbuckle.AspNetCore.Annotations;
 using whatsapp_clone_backend.Data;
 using whatsapp_clone_backend.Models;
 using whatsapp_clone_backend.Services;
@@ -23,7 +24,7 @@ namespace whatsapp_clone_backend.Controllers
             _reg_DL = registration_DL;
             _email = email;
             _cache = cache;
-        }
+        }   
 
         [HttpPost]
         [Route("register")]
@@ -34,7 +35,7 @@ namespace whatsapp_clone_backend.Controllers
             bool exits = _reg_DL.checkUser(reg.email);
             if(exits)
             {
-                return BadRequest("User already Exists");
+                return BadRequest(new { message = "User already Exists" });
             }
 
 
@@ -50,7 +51,7 @@ namespace whatsapp_clone_backend.Controllers
             _cache.Set($"user_{reg.email}", reg, TimeSpan.FromMinutes(5));
 
 
-            return Ok("OTP sent to your email");         
+            return Ok(new { message = "OTP sent to your email" });         
 
 
 
@@ -60,14 +61,16 @@ namespace whatsapp_clone_backend.Controllers
         [Route("enterotp")]
         public IActionResult checkOtp([FromForm] string email, [FromForm] string otp)
         {
+            Console.WriteLine("otp recievd from user is "+otp);
             string? cachedOtp = _cache.Get<string>($"otp_{email}");
 
             if (cachedOtp == null || cachedOtp != otp)
-                return BadRequest("Invalid or expired OTP");
+                return BadRequest(new { message = "Invalid or expired OTP" });
 
             var cachedUser = _cache.Get<Registration_model>($"user_{email}");
             if (cachedUser == null)
-                return BadRequest("User data expired");          
+                return BadRequest(new { message = "User data expired" });
+            Console.WriteLine("otp in the system is " + cachedOtp);
 
 
             _cache.Remove($"otp_{email}");
@@ -87,19 +90,22 @@ namespace whatsapp_clone_backend.Controllers
 
             if (isReg)
             {
-                return Ok("Your account has been created successfully");
+                return Ok(new { message = "Your account has been created successfully" });
             }
             else
             {
-                return BadRequest("There is an error in registration. Try again later");
+                return BadRequest(new { message = "There is an error in registration. Try again later" });
 
             }
         }
 
         [HttpPost]
         [Route("setdp")]
-        public async Task<IActionResult> uploadDP(IFormFile file,string email)
+        [SwaggerOperation(Summary = "Uploads profile picture", Description = "Accepts IFormFile and email via multipart/form-data")]
+        [Consumes("multipart/form-data")] 
+        public async Task<IActionResult> uploadDP([FromForm]IFormFile file,[FromForm]string email)
         {
+            Console.WriteLine("function called");
             string url;
             if (file == null || file.Length == 0)
             {
@@ -112,7 +118,7 @@ namespace whatsapp_clone_backend.Controllers
 
             if (url == null)
             {
-                return Ok("No Profile Photo Added");
+                return Ok(new { message = "No Profile Photo Added" });
             }
 
             else
@@ -120,11 +126,11 @@ namespace whatsapp_clone_backend.Controllers
                 bool isDpUpload=_reg_DL.addProfilePhoto(url,email);
                 if (isDpUpload)
                 {
-                    return Ok("Profile Photo Uploaded");
+                    return Ok(new { message = "Profile Photo Uploaded" });
                 }
                 else
                 {
-                    return BadRequest("Error in uploading profile photo");
+                    return BadRequest(new { message = "Error in uploading profile photo" });
                 }
 
             }

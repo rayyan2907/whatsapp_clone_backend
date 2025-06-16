@@ -12,7 +12,7 @@ namespace whatsapp_clone_backend.Controllers
 
 
     [ApiController]
-    [Route("api")]
+    [Route("whatsapp")]
     public class LoginController : ControllerBase
     {
         private readonly Login_DL _login;
@@ -30,6 +30,7 @@ namespace whatsapp_clone_backend.Controllers
         [Route("login")]
         public IActionResult Login(Login_model model)
         {
+            Console.WriteLine($"request from user {model.email} recieved");
             bool isValiduser = _login.checkUser(model.email);
             if (isValiduser)
             {
