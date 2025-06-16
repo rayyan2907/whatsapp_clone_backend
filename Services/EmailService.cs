@@ -28,7 +28,7 @@ namespace whatsapp_clone_backend.Services
 
             var message = new MailMessage
             {
-                From = new MailAddress(smtpSettings["Username"], "WhatsApp"),
+                From = new MailAddress(smtpSettings["Username"], "WhatsApp - OTP Verification"),
                 Subject = "Your OTP Verification Code",
                 Body = htmlBody,
                 IsBodyHtml = true
