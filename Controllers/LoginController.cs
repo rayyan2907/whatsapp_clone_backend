@@ -12,7 +12,7 @@ namespace whatsapp_clone_backend.Controllers
 
 
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api")]
     public class LoginController : ControllerBase
     {
         private readonly Login_DL _login;
@@ -25,7 +25,9 @@ namespace whatsapp_clone_backend.Controllers
 
         }
 
+        
         [HttpPost]
+        [Route("login")]
         public IActionResult Login(Login_model model)
         {
             bool isValiduser = _login.checkUser(model.email);
@@ -36,7 +38,7 @@ namespace whatsapp_clone_backend.Controllers
                 if (IsPwdValid)
                 {
                     User_Model user = _login.GetUser(model);
-                    var token = Login_service.GenerateJWTToken(user, _config);
+                    var token = Jwt_service.GenerateJWTToken(user, _config);
                     return Ok(new
                     {
                         token = token,

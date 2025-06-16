@@ -18,6 +18,8 @@ builder.Services.AddScoped<DbContext>(provider =>
 
 // Register DL class
 builder.Services.AddScoped<Login_DL>();
+builder.Services.AddScoped<Registration_DL>();
+
 
 // Add JWT Authentication (optional now, but needed soon)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

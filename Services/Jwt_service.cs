@@ -6,7 +6,7 @@ using whatsapp_clone_backend.Models;
 
 namespace whatsapp_clone_backend.Services
 {
-    public class Login_service
+    public class Jwt_service
     {
         public static string GenerateJWTToken(User_Model user, IConfiguration config)
         {
