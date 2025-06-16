@@ -1,4 +1,5 @@
 using whatsapp_clone_backend;
+using whatsapp_clone_backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,8 @@ builder.Services.AddSingleton(new DbContext(connectionString));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<Login_DL>();
+
 
 var app = builder.Build();
 

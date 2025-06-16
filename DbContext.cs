@@ -37,6 +37,7 @@ public class DbContext
             AddParameters(cmd, parameters);
             conn.Open();
 
+
             using (var reader = cmd.ExecuteReader())
             {
                 var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -72,9 +73,15 @@ public class DbContext
     private void AddParameters(MySqlCommand cmd, Dictionary<string, object> parameters)
     {
         if (parameters == null) return;
+        foreach (var p in cmd.Parameters)
+        {
+            Console.WriteLine(((MySqlParameter)p).ParameterName + ": " + ((MySqlParameter)p).Value);
+        }
+
         foreach (var kvp in parameters)
-            cmd.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@" + kvp.Key, kvp.Value ?? DBNull.Value);
     }
+
 }
 
 public static class MySqlExtensions

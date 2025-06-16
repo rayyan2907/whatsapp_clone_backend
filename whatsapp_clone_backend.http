@@ -1,6 +1,0 @@
-@whatsapp_clone_backend_HostAddress = http://localhost:5246
-
-GET {{whatsapp_clone_backend_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
