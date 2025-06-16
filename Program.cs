@@ -1,8 +1,9 @@
-using whatsapp_clone_backend.Data;
-using whatsapp_clone_backend;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using whatsapp_clone_backend;
+using whatsapp_clone_backend.Data;
+using whatsapp_clone_backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,13 @@ builder.Services.AddScoped<DbContext>(provider =>
 // Register DL class
 builder.Services.AddScoped<Login_DL>();
 builder.Services.AddScoped<Registration_DL>();
+builder.Services.AddScoped<EmailService>();
+
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+builder.Services.AddMemoryCache();
+
 
 
 // Add JWT Authentication (optional now, but needed soon)

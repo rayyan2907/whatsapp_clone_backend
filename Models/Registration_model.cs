@@ -7,7 +7,6 @@
         public string email { get; set; }
         public string password { get; set; }
         public DateTime date_of_birth { get; set; }
-        public IFormFile? profile_pic { get; set; }
 
     }
 }

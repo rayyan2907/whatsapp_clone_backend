@@ -62,5 +62,26 @@ namespace whatsapp_clone_backend.Data
             }
 
         }
+
+        public bool addProfilePhoto(string profile_pic_url,string email)
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                { "email", email },
+                { "profile_pic_url", profile_pic_url }
+            };
+            string query = "update users set profile_pic_url=@profile_pic_url where email=@email";
+
+            int rows = _db.ExecuteNonQuery(query, parameters);
+
+            if (rows > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

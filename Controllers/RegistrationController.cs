@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Mysqlx;
+using Org.BouncyCastle.Ocsp;
 using whatsapp_clone_backend.Data;
 using whatsapp_clone_backend.Models;
 using whatsapp_clone_backend.Services;
@@ -12,15 +15,19 @@ namespace whatsapp_clone_backend.Controllers
     {
         private readonly Registration_DL _reg_DL;
         private  Azure_services _azure = new Azure_services();
+        private readonly EmailService _email;
+        private readonly IMemoryCache _cache;
 
-        public RegistrationController(Registration_DL registration_DL)
+        public RegistrationController(Registration_DL registration_DL,EmailService email,IMemoryCache cache)
         {
             _reg_DL = registration_DL;
+            _email = email;
+            _cache = cache;
         }
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromForm] Registration_model reg)
+        public IActionResult Register(Registration_model reg)
         {
             //check if user already exits
 
@@ -31,25 +38,48 @@ namespace whatsapp_clone_backend.Controllers
             }
 
 
+            var otp = new Random().Next(100000, 999999).ToString(); // generate 6-digit OTP
+            bool sent = _email.SendOtpEmail(reg.email, otp);
+            
 
-            string url;
-            if (reg.profile_pic == null || reg.profile_pic.Length == 0)
+            if (!sent)
             {
-                url = null;
+                return StatusCode(500, "Failed to send OTP. Try again.");
             }
-            else
-            {
-                url = await _azure.UploadProfilePic(reg.profile_pic);
-            }
+            _cache.Set($"otp_{reg.email}", otp, TimeSpan.FromMinutes(5));
+            _cache.Set($"user_{reg.email}", reg, TimeSpan.FromMinutes(5));
 
+
+            return Ok("OTP sent to your email");         
+
+
+
+        }
+
+        [HttpPost]
+        [Route("enterotp")]
+        public IActionResult checkOtp([FromForm] string email, [FromForm] string otp)
+        {
+            string? cachedOtp = _cache.Get<string>($"otp_{email}");
+
+            if (cachedOtp == null || cachedOtp != otp)
+                return BadRequest("Invalid or expired OTP");
+
+            var cachedUser = _cache.Get<Registration_model>($"user_{email}");
+            if (cachedUser == null)
+                return BadRequest("User data expired");          
+
+
+            _cache.Remove($"otp_{email}");
+            _cache.Remove($"user_{email}");
+            
             var Reg_dto = new
             {
-                first_name = reg.first_name,
-                last_name = reg.last_name,
-                password = reg.password,
-                profile_pic_url = url,
-                date_of_birth = reg.date_of_birth,
-                email = reg.email,
+                first_name = cachedUser.first_name,
+                last_name = cachedUser.last_name,
+                password = cachedUser.password,
+                date_of_birth = cachedUser.date_of_birth,
+                email = cachedUser.email,
             };
 
 
@@ -64,7 +94,41 @@ namespace whatsapp_clone_backend.Controllers
                 return BadRequest("There is an error in registration. Try again later");
 
             }
-
         }
+
+        [HttpPost]
+        [Route("setdp")]
+        public async Task<IActionResult> uploadDP(IFormFile file,string email)
+        {
+            string url;
+            if (file == null || file.Length == 0)
+            {
+                url = null;
+            }
+            else
+            {
+                url = await _azure.UploadProfilePic(file);
+            }
+
+            if (url == null)
+            {
+                return Ok("No Profile Photo Added");
+            }
+
+            else
+            {
+                bool isDpUpload=_reg_DL.addProfilePhoto(url,email);
+                if (isDpUpload)
+                {
+                    return Ok("Profile Photo Uploaded");
+                }
+                else
+                {
+                    return BadRequest("Error in uploading profile photo");
+                }
+
+            }
+        }
+    
     }
 }
