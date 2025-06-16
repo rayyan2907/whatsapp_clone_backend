@@ -1,24 +1,47 @@
-using whatsapp_clone_backend;
 using whatsapp_clone_backend.Data;
+using whatsapp_clone_backend;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Read the connection string from appsettings.json
-string connectionString = builder.Configuration.GetConnectionString("Default");
+// Read JWT settings from appsettings.json
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
-// Optional: Register the connection string globally in DI if needed
-builder.Services.AddSingleton(new DbContext(connectionString));
+// Register DbContext with Scoped lifetime
+builder.Services.AddScoped<DbContext>(provider =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("Default");
+    return new DbContext(connectionString);
+});
 
-// Add services to the container.
+// Register DL class
+builder.Services.AddScoped<Login_DL>();
+
+// Add JWT Authentication (optional now, but needed soon)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+        };
+    });
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<Login_DL>();
-
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Swagger in dev
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -26,6 +49,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
