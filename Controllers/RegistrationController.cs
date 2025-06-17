@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Mysqlx;
 using Org.BouncyCastle.Ocsp;
-using Swashbuckle.AspNetCore.Annotations;
 using whatsapp_clone_backend.Data;
 using whatsapp_clone_backend.Models;
 using whatsapp_clone_backend.Services;
@@ -101,19 +100,17 @@ namespace whatsapp_clone_backend.Controllers
 
         [HttpPost]
         [Route("setdp")]
-        [SwaggerOperation(Summary = "Uploads profile picture", Description = "Accepts IFormFile and email via multipart/form-data")]
-        [Consumes("multipart/form-data")] 
-        public async Task<IActionResult> uploadDP([FromForm]IFormFile file,[FromForm]string email)
+        public async Task<IActionResult> uploadDP([FromForm]ProfilePic pic)
         {
             Console.WriteLine("function called");
             string url;
-            if (file == null || file.Length == 0)
+            if (pic.Pic == null || pic.Pic.Length == 0)
             {
                 url = null;
             }
             else
             {
-                url = await _azure.UploadProfilePic(file);
+                url = await _azure.UploadProfilePic(pic.Pic);
             }
 
             if (url == null)
@@ -123,7 +120,7 @@ namespace whatsapp_clone_backend.Controllers
 
             else
             {
-                bool isDpUpload=_reg_DL.addProfilePhoto(url,email);
+                bool isDpUpload=_reg_DL.addProfilePhoto(url,pic.email);
                 if (isDpUpload)
                 {
                     return Ok(new { message = "Profile Photo Uploaded" });
