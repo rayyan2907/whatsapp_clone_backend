@@ -86,7 +86,7 @@ namespace whatsapp_clone_backend.Controllers
             if (!allowedTypes.Contains(_audio.voice.ContentType.ToLower()))
                 return BadRequest(new { message = "Only audio files are allowed (MP3, WAV, etc.)" });
 
-            _audio.duration=AudioLengthService.GetAudioDuration(_audio.voice);
+            _audio.duration=LengthService.GetAudioDuration(_audio.voice);
             Console.WriteLine(_audio.duration);
             _audio.voice_url = await _azure.sendVoice(_audio.voice);
 
@@ -106,6 +106,44 @@ namespace whatsapp_clone_backend.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("sendvideo")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> sendvideoMessage([FromForm] Video_msg _video)
+        {
+
+
+            if (_video.video == null || _video.video.Length == 0)
+            {
+                return BadRequest(new { message = "no video recieved" });
+            }
+
+
+            var allowedVideoTypes = new[] { "video/mp4", "video/x-msvideo", "video/x-matroska", "video/webm", "video/quicktime" };
+
+            if (!allowedVideoTypes.Contains(_video.video.ContentType.ToLower()))
+                return BadRequest(new { message = "Only video files are allowed (MP4, AVI, MKV, etc.)" });
+
+
+          
+            Console.WriteLine(_video.duration);
+            _video.video_url = await _azure.sendVideo(_video.video);
+
+            if (_video.video_url == null)
+            {
+                return BadRequest(new { message = "error in sending video" });
+            }
+
+            bool isSend = _msg_dl.sendvideoMessage(_video);
+            if (isSend)
+            {
+                return Ok(isSend);
+            }
+            else
+            {
+                return BadRequest(isSend);
+            }
+        }
 
 
 

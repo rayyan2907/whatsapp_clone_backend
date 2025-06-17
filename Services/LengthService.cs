@@ -2,7 +2,7 @@
 
 namespace whatsapp_clone_backend.Services
 {
-    public static class AudioLengthService
+    public static class LengthService
     {
 
         public static string GetAudioDuration(IFormFile audio)
