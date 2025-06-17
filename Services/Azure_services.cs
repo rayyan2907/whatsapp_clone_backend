@@ -27,8 +27,7 @@ namespace whatsapp_clone_backend.Services
 
                 using (var stream = file.OpenReadStream())
                 {
-                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = file.ContentType });
-                }
+                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = file.ContentType });                }
 
                 Console.WriteLine(blobClient.Uri.ToString());
                 return blobClient.Uri.ToString();
@@ -37,9 +36,34 @@ namespace whatsapp_clone_backend.Services
             {
                 Console.WriteLine(ex);
                 return null;
-
             }
+        }
 
+        public async Task<string> sendImg(IFormFile file)
+        {
+            try
+            {
+                string containerName = "sentimgs";
+                var blobServiceClient = new BlobServiceClient(connectionstring);
+                var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                var blobClient = containerClient.GetBlobClient(fileName);
+
+                using (var stream = file.OpenReadStream())
+                {
+                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = file.ContentType });
+                }
+
+                Console.WriteLine(blobClient.Uri.ToString());
+                return blobClient.Uri.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
         }
 
     }
