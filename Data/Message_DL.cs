@@ -11,9 +11,11 @@ namespace whatsapp_clone_backend.Data
             _db = db;   
         }
 
-        public bool sendMessage(Text_msg txt)
+        public bool sendTxtMessage(Text_msg txt)
         {
-            string query = "insert into message (sender_id,receiver_id,time,type,is_seen) values (@sender_id,@receiver_id,@time,@type,@is_seen)";
+
+            var transactions = new List<(string, Dictionary<string, Object>)>();
+            string query = "insert into message (sender_id,receiver_id,time,type,is_seen) values (@sender_id,@receiver_id,@time,'msg',@is_seen)";
 
 
             var parameters = new Dictionary<string, object>
@@ -21,21 +23,18 @@ namespace whatsapp_clone_backend.Data
                 { "sender_id" , txt.sender_id },
                 { "receiver_id", txt.reciever_id },
                 { "time", txt.time },
-                { "type", txt.type },
                 { "is_seen", txt.is_seen }
 
             };
-
-            int rows = _db.ExecuteNonQuery (query, parameters);
-            if (rows > 0)
+            transactions.Add((query, parameters));
+            string query2 = "insert into text_msg (msg_id,text_msg) values (last_insert_id(),@text_msg)";
+            var paramters2 = new Dictionary<string, object>
             {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-
+                {"text_msg",txt.text_msg }
+            };
+            transactions.Add((query2, paramters2));
+            return _db.ExecuteTransaction(transactions);
+            
 
 
         }

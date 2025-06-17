@@ -21,7 +21,7 @@ namespace whatsapp_clone_backend.Controllers
         [Route("sendtext")]
         public IActionResult sendtxtMessage(Text_msg txt)
         {
-            bool isSend=_msg_dl.sendMessage(txt);
+            bool isSend=_msg_dl.sendTxtMessage(txt);
             if (isSend)
             {
                 return Ok(isSend);
