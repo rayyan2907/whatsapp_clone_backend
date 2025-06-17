@@ -52,6 +52,38 @@ namespace whatsapp_clone_backend.Controllers
                 return BadRequest(new { message = "error in uploading image" });
             }
 
+            bool isSend = _msg_dl.sendimgMessage(_img);
+            if (isSend)
+            {
+                return Ok(isSend);
+            }
+            else
+            {
+                return BadRequest(isSend);
+            }
+        }
+
+
+        [HttpPost]
+        [Route("sendvoice")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> sendvoiceMessage([FromForm] Image_msg _img)
+        {
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
+            if (!allowedTypes.Contains(_img.image.ContentType.ToLower()))
+                return BadRequest(new { message = "Only image files are allowed (JPEG, PNG, etc.)" });
+
+            if (_img.image == null || _img.image.Length == 0)
+            {
+                return BadRequest(new { message = "no image recieved" });
+            }
+
+            _img.img_url = await _azure.sendImg(_img.image);
+
+            if (_img.img_url == null)
+            {
+                return BadRequest(new { message = "error in uploading image" });
+            }
 
             bool isSend = _msg_dl.sendimgMessage(_img);
             if (isSend)
