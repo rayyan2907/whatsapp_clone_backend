@@ -93,6 +93,45 @@ public class DbContext
             return null;
         }
     }
+    public bool ExecuteTransaction(List<(string query, Dictionary<string, object> parameters)> commands)
+    {
+        try
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (var (query, parameters) in commands)
+                        {
+                            using (var cmd = new MySqlCommand(query, conn, transaction))
+                            {
+                                AddParameters(cmd, parameters);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Transaction failed: " + ex.Message);
+                        transaction.Rollback();
+                        return false;
+                    }
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
+    }
+
 
     private void AddParameters(MySqlCommand cmd, Dictionary<string, object> parameters)
     {

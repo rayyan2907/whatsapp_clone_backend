@@ -29,7 +29,7 @@ namespace whatsapp_clone_backend.Data
             int rows = _db.ExecuteNonQuery (query, parameters);
             if (rows > 0)
             {
-                str
+                return true;
             }
             else
             {
