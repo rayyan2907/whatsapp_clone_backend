@@ -56,12 +56,12 @@ namespace whatsapp_clone_backend.Controllers
                 }
                 else
                 {
-                    return BadRequest("Password is incorrect");
+                    return BadRequest(new { message = "Password is incorrect" });
                 }
             }
             else
             {
-                return BadRequest("No user found");
+                return BadRequest(new { message = "No user found" });
             }
         }
 
