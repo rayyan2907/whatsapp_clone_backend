@@ -64,5 +64,31 @@ namespace whatsapp_clone_backend.Data
             transactions.Add((query2, paramters2));
             return _db.ExecuteTransaction(transactions);
         }
+
+        public bool sendvoiceMessage(Audio_msg _msg)
+        {
+
+            var transactions = new List<(string, Dictionary<string, Object>)>();
+            string query = "insert into message (sender_id,receiver_id,time,type,is_seen) values (@sender_id,@receiver_id,@time,'voice',@is_seen)";
+
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "sender_id" , _msg.sender_id },
+                { "receiver_id", _msg.reciever_id },
+                { "time", _msg.time },
+                { "is_seen", _msg.is_seen }
+
+            };
+            transactions.Add((query, parameters));
+            string query2 = "insert into voice_msg (msg_id,voice_url,duration) values (last_insert_id(),@voice_url,@duration)";
+            var paramters2 = new Dictionary<string, object>
+            {
+                {"voice_url",_msg.voice_url },
+                {"duration",_msg.duration}
+            };
+            transactions.Add((query2, paramters2));
+            return _db.ExecuteTransaction(transactions);
+        }
     }
 }

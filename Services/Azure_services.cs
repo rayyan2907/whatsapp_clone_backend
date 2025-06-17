@@ -66,6 +66,33 @@ namespace whatsapp_clone_backend.Services
             }
         }
 
+        public async Task<string> sendVoice(IFormFile file)
+        {
+            try
+            {
+                string containerName = "sentvoice";
+                var blobServiceClient = new BlobServiceClient(connectionstring);
+                var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                var blobClient = containerClient.GetBlobClient(fileName);
+
+                using (var stream = file.OpenReadStream())
+                {
+                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = file.ContentType });
+                }
+
+                Console.WriteLine(blobClient.Uri.ToString());
+                return blobClient.Uri.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+        }
+
     }
 }
     
