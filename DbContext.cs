@@ -17,56 +17,80 @@ public class DbContext
     // For INSERT, UPDATE, DELETE
     public int ExecuteNonQuery(string query, Dictionary<string, object> parameters = null)
     {
-        using (var conn = new MySqlConnection(_connectionString))
-        using (var cmd = new MySqlCommand(query, conn))
+        try
         {
-            AddParameters(cmd, parameters);
-            conn.Open();
-            return cmd.ExecuteNonQuery();
+            using (var conn = new MySqlConnection(_connectionString))
+            using (var cmd = new MySqlCommand(query, conn))
+            {
+                AddParameters(cmd, parameters);
+                conn.Open();
+                return cmd.ExecuteNonQuery();
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+            return -1;
         }
     }
 
     // For SELECT queries returning List<T>
     public List<T> ExecuteQuery<T>(string query, Dictionary<string, object> parameters = null) where T : new()
     {
-        var result = new List<T>();
-
-        using (var conn = new MySqlConnection(_connectionString))
-        using (var cmd = new MySqlCommand(query, conn))
+        try
         {
-            AddParameters(cmd, parameters);
-            conn.Open();
+            var result = new List<T>();
 
-
-            using (var reader = cmd.ExecuteReader())
+            using (var conn = new MySqlConnection(_connectionString))
+            using (var cmd = new MySqlCommand(query, conn))
             {
-                var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                AddParameters(cmd, parameters);
+                conn.Open();
 
-                while (reader.Read())
+
+                using (var reader = cmd.ExecuteReader())
                 {
-                    var obj = new T();
-                    foreach (var prop in props)
+                    var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                    while (reader.Read())
                     {
-                        if (!reader.HasColumn(prop.Name) || reader[prop.Name] is DBNull) continue;
-                        prop.SetValue(obj, Convert.ChangeType(reader[prop.Name], prop.PropertyType));
+                        var obj = new T();
+                        foreach (var prop in props)
+                        {
+                            if (!reader.HasColumn(prop.Name) || reader[prop.Name] is DBNull) continue;
+                            prop.SetValue(obj, Convert.ChangeType(reader[prop.Name], prop.PropertyType));
+                        }
+                        result.Add(obj);
                     }
-                    result.Add(obj);
                 }
             }
-        }
 
-        return result;
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return null;
+        }
     }
 
     // For single value (like COUNT(*))
     public object ExecuteScalar(string query, Dictionary<string, object> parameters = null)
     {
-        using (var conn = new MySqlConnection(_connectionString))
-        using (var cmd = new MySqlCommand(query, conn))
+        try
         {
-            AddParameters(cmd, parameters);
-            conn.Open();
-            return cmd.ExecuteScalar();
+            using (var conn = new MySqlConnection(_connectionString))
+            using (var cmd = new MySqlCommand(query, conn))
+            {
+                AddParameters(cmd, parameters);
+                conn.Open();
+                return cmd.ExecuteScalar();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return null;
         }
     }
 
