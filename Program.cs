@@ -72,11 +72,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseSwagger();
 
 // Swagger in dev
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
     app.UseSwaggerUI();
 }
 

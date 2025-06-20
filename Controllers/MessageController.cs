@@ -8,6 +8,7 @@ using whatsapp_clone_backend.Services;
 namespace whatsapp_clone_backend.Controllers
 {
     [ApiController]
+    [Route("message")]
     //[Authorize]
     public class MessageController : ControllerBase
     {
