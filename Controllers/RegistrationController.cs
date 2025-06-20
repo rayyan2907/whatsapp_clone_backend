@@ -27,7 +27,7 @@ namespace whatsapp_clone_backend.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register(Registration_model reg)
+        public async Task<IActionResult> Register(Registration_model reg)
         {
             //check if user already exits
 
@@ -39,7 +39,7 @@ namespace whatsapp_clone_backend.Controllers
 
 
             var otp = new Random().Next(100000, 999999).ToString(); // generate 6-digit OTP
-            bool sent = _email.SendOtpEmail(reg.email, otp);
+            bool sent = await _email.SendOtpEmail(reg.email, otp);
             
 
             if (!sent)

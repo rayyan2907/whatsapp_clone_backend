@@ -1,5 +1,6 @@
-﻿using System.Net;
-using System.Net.Mail;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace whatsapp_clone_backend.Services
 {
@@ -12,47 +13,38 @@ namespace whatsapp_clone_backend.Services
             _config = config;
         }
 
-
-        public bool SendOtpEmail(string toEmail, string otp)
+        public async Task<bool> SendOtpEmail(string toEmail, string otp)
         {
             try
             {
+                // Load HTML template
                 string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Email_templates", "otp_template.html");
-                string htmlBody = File.ReadAllText(templatePath);
-                htmlBody = htmlBody.Replace("{{OTP}}", otp);
+                string htmlBody = File.ReadAllText(templatePath).Replace("{{OTP}}", otp);
 
-                var smtpSettings = _config.GetSection("EmailSettings");
-                var client = new SmtpClient(smtpSettings["Host"], int.Parse(smtpSettings["Port"]))
-                {
-                    Credentials = new NetworkCredential(smtpSettings["Username"], smtpSettings["Password"]),
-                    EnableSsl = bool.Parse(smtpSettings["EnableSsl"])
-                };
+                // Build email
+                var email = new MimeMessage();
+                email.From.Add(new MailboxAddress("WhatsApp", _config["EmailSettings:Username"]));
 
-                var message = new MailMessage
-                {
-                    From = new MailAddress(smtpSettings["Username"], "WhatsApp - OTP Verification"),
-                    Subject = "Your OTP Verification Code",
-                    Body = htmlBody,
-                    IsBodyHtml = true
-                };
-                message.To.Add(toEmail);
-                try
-                {
-                    client.Send(message);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Failed to send email: " + ex.Message);
-                    return false;
-                }
+                email.To.Add(MailboxAddress.Parse(toEmail));
+                email.Subject = "Your OTP Verification Code";
+
+                var bodyBuilder = new BodyBuilder { HtmlBody = htmlBody };
+                email.Body = bodyBuilder.ToMessageBody();
+
+                // SMTP settings
+                using var smtp = new SmtpClient();
+                await smtp.ConnectAsync(_config["EmailSettings:Host"], int.Parse(_config["EmailSettings:Port"]), SecureSocketOptions.StartTls);
+                await smtp.AuthenticateAsync(_config["EmailSettings:Username"], _config["EmailSettings:Password"]);
+                await smtp.SendAsync(email);
+                await smtp.DisconnectAsync(true);
+
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Email send failed: {ex.Message}");
                 return false;
             }
-
-          
         }
     }
 }
