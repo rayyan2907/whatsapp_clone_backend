@@ -40,11 +40,13 @@ namespace whatsapp_clone_backend.Controllers
 
 
             var otp = new Random().Next(100000, 999999).ToString(); // generate 6-digit OTP
-            string sent = await _email.SendOtpEmail(reg.email, otp);
+            bool sent = await _email.SendOtpEmail(reg.email, otp);
             
-           
-                return StatusCode(500, new { message = "Failed to send OTP. Try again." + sent });
             
+            if (!sent)
+            {
+                return StatusCode(500, new { message = "Failed to send OTP. Try again." });
+            }
             _cache.Set($"otp_{reg.email}", otp, TimeSpan.FromMinutes(5));
             _cache.Set($"user_{reg.email}", reg, TimeSpan.FromMinutes(5));
 
