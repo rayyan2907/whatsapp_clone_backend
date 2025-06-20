@@ -48,6 +48,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
         };
     });
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 2147483647; // 2 GB
+});
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 2147483647; // 2 GB
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

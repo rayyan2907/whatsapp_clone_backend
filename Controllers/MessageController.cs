@@ -124,7 +124,7 @@ namespace whatsapp_clone_backend.Controllers
             if (!allowedVideoTypes.Contains(_video.video.ContentType.ToLower()))
                 return BadRequest(new { message = "Only video files are allowed (MP4, AVI, MKV, etc.)" });
 
-
+            _video.duration = LengthService.GetVideoDuration(_video.video);
           
             Console.WriteLine(_video.duration);
             _video.video_url = await _azure.sendVideo(_video.video);
