@@ -62,19 +62,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // React URL
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-    options.AddPolicy("AllowProduction", policy =>
-    {
-        policy.WithOrigins("https://whatsapp-react-c3s9-h7p8d7y1j-rayyan2907s-projects.vercel.app")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+            "http://localhost:5173",
+            "https://whatsapp-react-c3s9-h7p8d7y1j-rayyan2907s-projects.vercel.app"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials(); // Only needed if you're using cookies/auth headers
     });
 });
+
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -87,8 +86,8 @@ if (app.Environment.IsDevelopment())
 {
 }
 
+app.UseCors("AllowFrontend");
 
-app.UseCors("AllowLocalhost");
 
 
 app.UseHttpsRedirection();
