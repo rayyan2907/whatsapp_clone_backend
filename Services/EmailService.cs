@@ -43,8 +43,10 @@ namespace whatsapp_clone_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Email send failed: {ex.Message}");
+
                 return false;
             }
         }
+        
     }
 }
