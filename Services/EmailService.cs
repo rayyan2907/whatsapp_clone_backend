@@ -13,7 +13,7 @@ namespace whatsapp_clone_backend.Services
             _config = config;
         }
 
-        public async Task<bool> SendOtpEmail(string toEmail, string otp)
+        public async Task<string> SendOtpEmail(string toEmail, string otp)
         {
             try
             {
@@ -38,13 +38,13 @@ namespace whatsapp_clone_backend.Services
                 await smtp.SendAsync(email);
                 await smtp.DisconnectAsync(true);
 
-                return true;
+                return "done";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Email send failed: {ex.Message}");
 
-                return false;
+                return ex.Message;
             }
         }
         

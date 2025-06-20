@@ -40,68 +40,11 @@ namespace whatsapp_clone_backend.Controllers
 
 
             var otp = new Random().Next(100000, 999999).ToString(); // generate 6-digit OTP
-            bool sent = await _email.SendOtpEmail(reg.email, otp);
+            string sent = await _email.SendOtpEmail(reg.email, otp);
             
+           
+                return StatusCode(500, new { message = "Failed to send OTP. Try again." + sent });
             
-            if (!sent)
-            {
-
-
-
-
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Quizzy - Modern Quiz System", "mrayyan403@gmail.com"));
-                message.To.Add(new MailboxAddress("rayan","mrayyan5296@gmail.com"));
-                message.Subject = "Log In Alert - Quizzy";
-
-                message.Body = new TextPart(MimeKit.Text.TextFormat.Html)
-                {
-                    Text = $@"
-                    
-                            <html>
-                            <body style='font-family: Arial, sans-serif; background-color: white; color: #2E2B41; padding: 30px;'>
-                                <div style='background-color: #F3F0FF; border-radius: 10px; padding: 30px; max-width: 600px; margin: auto;'>
-                                    <h2 style='color: #8672FF; text-align: center;'>Login Alert</h2>
-                                    <p>Ytest emeil</b>.</p>
-                                    <p>If this wasn't you, please log in and change your password immediately.</p>
-                                    <div style='margin-top: 40px; font-size: 12px; color: #999; text-align: center;'>
-                                        <footer style='font-size: 12px; color: #888;'>Stay Secure!</footer>
-                                        &copy; 2025 Quizzy. All rights reserved.
-                                    </div>
-                                </div>
-                            </body>
-                            </html>"
-                };
-                try
-                {
-                    using (var client = new MailKit.Net.Smtp.SmtpClient())
-                    {
-                        client.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                        client.Authenticate("mrayyan403@gmail.com", "yuax ekty ofav lkvj"); // your app password
-                        client.Send(message);
-                        client.Disconnect(true);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, new { message = ex });
-
-                    Console.WriteLine("internet issue");
-
-                }
-
-
-
-
-
-
-
-
-
-
-
-                return StatusCode(500, new { message = "Failed to send OTP. Try again." });
-            }
             _cache.Set($"otp_{reg.email}", otp, TimeSpan.FromMinutes(5));
             _cache.Set($"user_{reg.email}", reg, TimeSpan.FromMinutes(5));
 
