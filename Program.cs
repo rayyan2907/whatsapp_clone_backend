@@ -68,6 +68,12 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
+    options.AddPolicy("AllowProduction", policy =>
+    {
+        policy.WithOrigins("https://whatsapp-react-c3s9-h7p8d7y1j-rayyan2907s-projects.vercel.app")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 builder.Services.AddSwaggerGen();
 
