@@ -74,7 +74,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
-
+    
 
 // Swagger in dev
 if (app.Environment.IsDevelopment())
