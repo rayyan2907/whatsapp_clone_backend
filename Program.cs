@@ -69,8 +69,7 @@ builder.Services.AddCors(options =>
             "https://whatsapp-react-c3s9-h7p8d7y1j-rayyan2907s-projects.vercel.app"
         )
         .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials(); // Only needed if you're using cookies/auth headers
+        .AllowAnyMethod();
     });
 });
 
@@ -86,8 +85,8 @@ if (app.Environment.IsDevelopment())
 {
 }
 
-app.UseCors("AllowFrontend");
 
+app.UseCors("AllowFrontend");
 
 
 app.UseHttpsRedirection();
