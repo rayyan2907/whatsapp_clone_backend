@@ -26,13 +26,18 @@ namespace whatsapp_clone_backend.Controllers
         [Route("sendtext")]
         public IActionResult sendtxtMessage(Text_msg txt)
         {
+            Console.WriteLine("function called");
             var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
 
             if (userIdClaim == null)
                 return Unauthorized("You have been Logged Out.");
 
             txt.sender_id = int.Parse(userIdClaim.Value);
+            if (txt.sender_id == null)
+                return Unauthorized("You have been Logged Out.");
 
+
+            Console.WriteLine("sender id is "+txt.sender_id.ToString()+"receiver id is "+ txt.reciever_id.ToString());
             bool isSend=_msg_dl.sendTxtMessage(txt);
             if (isSend)
             {
