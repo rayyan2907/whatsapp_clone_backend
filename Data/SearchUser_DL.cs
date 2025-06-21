@@ -17,7 +17,7 @@ namespace whatsapp_clone_backend.Data
             string query = "select user_id,email,profile_pic_url,date_of_birth,first_name,last_name from users where email like @prefix";
             var parameters = new Dictionary<string, object>
             {
-                { "prefix", prefix + "%" }
+                { "prefix", "%" + prefix + "%" }
             };
             return _db.ExecuteQuery<User_Model>(query, parameters); 
         }
