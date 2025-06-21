@@ -10,7 +10,7 @@ namespace whatsapp_clone_backend.Controllers
 {
     [ApiController]
     [Route("message")]
-    //[Authorize]
+    [Authorize]
     public class MessageController : ControllerBase
     {
         private readonly Message_DL _msg_dl;
@@ -29,7 +29,7 @@ namespace whatsapp_clone_backend.Controllers
             var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
 
             if (userIdClaim == null)
-                return Unauthorized("User ID not found in token.");
+                return Unauthorized("You have been Logged Out.");
 
             txt.sender_id = int.Parse(userIdClaim.Value);
 
@@ -52,7 +52,7 @@ namespace whatsapp_clone_backend.Controllers
             var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
 
             if (userIdClaim == null)
-                return Unauthorized("User ID not found in token.");
+                return Unauthorized("You have been Logged Out.");
 
             _img.sender_id = int.Parse(userIdClaim.Value);
             if (_img.image== null || _img.image.Length == 0)
@@ -91,7 +91,7 @@ namespace whatsapp_clone_backend.Controllers
             var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
 
             if (userIdClaim == null)
-                return Unauthorized("User ID not found in token.");
+                return Unauthorized("You have been Logged Out.");
 
             _audio.sender_id = int.Parse(userIdClaim.Value);
 
@@ -133,7 +133,7 @@ namespace whatsapp_clone_backend.Controllers
             var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
 
             if (userIdClaim == null)
-                return Unauthorized("User ID not found in token.");
+                return Unauthorized("You have been Logged Out.");
 
             _video.sender_id = int.Parse(userIdClaim.Value);
 

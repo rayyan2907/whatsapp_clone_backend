@@ -66,27 +66,7 @@ namespace whatsapp_clone_backend.Controllers
         }
 
 
-        [Authorize]
-        [HttpPost]
-        [Route("test")]
-        public IActionResult GetData([FromBody] string request)
-        {
-            return Ok($"{request} is sent");
-        }
 
-        [Authorize]
-        [HttpGet("test")]
-        public IActionResult SendMessage()
-        {
-            var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
-
-            if (userIdClaim == null)
-                return Unauthorized("User ID not found in token.");
-
-            int senderId = int.Parse(userIdClaim.Value);
-
-            // Now use senderId and dto to proceed
-            return Ok(new { message = senderId });
-        }
+        
     }
 }
