@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using whatsapp_clone_backend.Models;
 
 namespace whatsapp_clone_backend.Data
@@ -68,6 +70,9 @@ namespace whatsapp_clone_backend.Data
 
             return user.FirstOrDefault();
         }
+
+
+       
 
     }
 }

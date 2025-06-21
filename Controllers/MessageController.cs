@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using whatsapp_clone_backend.Data;
 using whatsapp_clone_backend.Models;
 using whatsapp_clone_backend.Services;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace whatsapp_clone_backend.Controllers
 {
@@ -25,6 +26,13 @@ namespace whatsapp_clone_backend.Controllers
         [Route("sendtext")]
         public IActionResult sendtxtMessage(Text_msg txt)
         {
+            var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
+
+            if (userIdClaim == null)
+                return Unauthorized("User ID not found in token.");
+
+            txt.sender_id = int.Parse(userIdClaim.Value);
+
             bool isSend=_msg_dl.sendTxtMessage(txt);
             if (isSend)
             {
@@ -41,7 +49,12 @@ namespace whatsapp_clone_backend.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> sendimgMessage([FromForm] Image_msg _img)
         {
-            
+            var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
+
+            if (userIdClaim == null)
+                return Unauthorized("User ID not found in token.");
+
+            _img.sender_id = int.Parse(userIdClaim.Value);
             if (_img.image== null || _img.image.Length == 0)
             {
                 return BadRequest(new { message = "no image recieved" });
@@ -75,7 +88,12 @@ namespace whatsapp_clone_backend.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> sendvoiceMessage([FromForm] Audio_msg _audio)
         {
-           
+            var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
+
+            if (userIdClaim == null)
+                return Unauthorized("User ID not found in token.");
+
+            _audio.sender_id = int.Parse(userIdClaim.Value);
 
             if (_audio.voice == null || _audio.voice.Length == 0)
             {
@@ -112,7 +130,12 @@ namespace whatsapp_clone_backend.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> sendvideoMessage([FromForm] Video_msg _video)
         {
+            var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
 
+            if (userIdClaim == null)
+                return Unauthorized("User ID not found in token.");
+
+            _video.sender_id = int.Parse(userIdClaim.Value);
 
             if (_video.video == null || _video.video.Length == 0)
             {
