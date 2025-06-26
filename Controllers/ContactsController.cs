@@ -1,12 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using whatsapp_clone_backend.Data;
 
 namespace whatsapp_clone_backend.Controllers
 {
-    public class ContactsController : Controller
+   
+    [ApiController]
+
+    public class ContactsController : ControllerBase
     {
-        public IActionResult Index()
+        private readonly Contact_DL _contactdl;
+
+        public ContactsController(Contact_DL contactdl)
         {
-            return View();
+            _contactdl = contactdl;
+        }
+
+        [HttpGet]
+        [Route("getContacts")]
+        public IActionResult getContacts([FromQuery] int id)
+        {
+            var contacts = _contactdl.getContacts(id);
+            return Ok(contacts);
         }
     }
 }

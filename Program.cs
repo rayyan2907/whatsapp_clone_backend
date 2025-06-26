@@ -22,6 +22,8 @@ builder.Services.AddScoped<Login_DL>();
 builder.Services.AddScoped<Message_DL>();
 
 builder.Services.AddScoped<SearchUser_DL>();
+builder.Services.AddScoped<Contact_DL>();
+
 
 builder.Services.AddScoped<Registration_DL>();
 builder.Services.AddScoped<EmailService>();
