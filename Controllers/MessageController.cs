@@ -174,7 +174,12 @@ namespace whatsapp_clone_backend.Controllers
             }
         }
 
-
+        [HttpGet]
+        [Route("getMessage")]
+        public IActionResult getMessage([FromQuery] int id)
+        {
+            return Ok();
+        }
 
 
     }

@@ -6,6 +6,7 @@ using whatsapp_clone_backend.Data;
 namespace whatsapp_clone_backend.Controllers
 {
     [ApiController]
+
     public class SeachController : ControllerBase
     {
         private readonly SearchUser_DL _search;

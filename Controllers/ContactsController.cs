@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using whatsapp_clone_backend.Data;
 
@@ -6,7 +7,7 @@ namespace whatsapp_clone_backend.Controllers
 {
    
     [ApiController]
-
+    [Authorize]
     public class ContactsController : ControllerBase
     {
         private readonly Contact_DL _contactdl;
