@@ -18,6 +18,7 @@ namespace whatsapp_clone_backend.Controllers
         private  Azure_services _azure = new Azure_services();
         private readonly EmailService _email;
         private readonly IMemoryCache _cache;
+        private readonly Image_crop_service _img_service=new Image_crop_service();
 
         public RegistrationController(Registration_DL registration_DL,EmailService email,IMemoryCache cache)
         {
@@ -111,7 +112,18 @@ namespace whatsapp_clone_backend.Controllers
             }
             else
             {
-                url = await _azure.UploadProfilePic(pic.Pic);
+                
+                using (var ms = new MemoryStream())
+                {
+                    await pic.Pic.CopyToAsync(ms);
+                    byte[] originalBytes = ms.ToArray();
+
+                    // 2. Crop the image to square PNG
+                    byte[] croppedBytes = _img_service.CropImageToSquarePng(originalBytes);
+
+                    // 3. Upload cropped image to Azure
+                    url = await _azure.UploadProfilePic(croppedBytes); // Update this to accept byte[]
+                }
             }
 
             if (url == null)

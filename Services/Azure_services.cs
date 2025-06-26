@@ -1,5 +1,9 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace whatsapp_clone_backend.Services
 {
@@ -13,7 +17,7 @@ namespace whatsapp_clone_backend.Services
             connectionstring = "DefaultEndpointsProtocol=https;AccountName=whatsap;AccountKey=fmLjDC9VnNZXIL9/dEXLFWO9CyzlRCfTwh/0V9GTdIUf8RMHVkc8hNSrUsUBoZD1v7kUUN/fvwae+AStVWFeAw==;EndpointSuffix=core.windows.net";
         }
 
-        public async Task<string> UploadProfilePic(IFormFile file)
+        public async Task<string> UploadProfilePic(byte[] imageBytes)
         {
             try
             {
@@ -22,22 +26,24 @@ namespace whatsapp_clone_backend.Services
                 var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
                 await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                var fileName = Guid.NewGuid().ToString() + ".png"; // Always PNG
                 var blobClient = containerClient.GetBlobClient(fileName);
 
-                using (var stream = file.OpenReadStream())
+                using (var stream = new MemoryStream(imageBytes))
                 {
-                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = file.ContentType });                }
+                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = "image/png" });
+                }
 
                 Console.WriteLine(blobClient.Uri.ToString());
                 return blobClient.Uri.ToString();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return null;
             }
         }
+
 
         public async Task<string> sendImg(IFormFile file)
         {
