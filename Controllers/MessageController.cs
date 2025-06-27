@@ -178,7 +178,7 @@ namespace whatsapp_clone_backend.Controllers
         [Route("getMessage")]
         public IActionResult getMessage([FromQuery] int id, [FromQuery] int ofsset)
         {
-            Console.WriteLine("fumction called");
+            Console.WriteLine("messages called");
             var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
 
             if (userIdClaim == null)
@@ -190,6 +190,11 @@ namespace whatsapp_clone_backend.Controllers
 
 
             var messages = _msg_dl.getMessages(user_id, id, ofsset);
+            if (messages == null)
+            {
+                Console.WriteLine("got no messages (null)");
+                return Ok(new List<object>()); // Return empty list to prevent Flutter errors
+            }
             Console.WriteLine("got messages "+messages.Count);
             return Ok(messages);
         }

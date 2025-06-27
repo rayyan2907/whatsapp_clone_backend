@@ -15,7 +15,7 @@ namespace whatsapp_clone_backend.Controllers
     public class RegistrationController : ControllerBase
     {
         private readonly Registration_DL _reg_DL;
-        private  Azure_services _azure = new Azure_services();
+        private Azure_services _azure = new Azure_services();
         private readonly EmailService _email;
         private readonly IMemoryCache _cache;
         private readonly Image_crop_service _img_service=new Image_crop_service();

@@ -124,6 +124,30 @@ namespace whatsapp_clone_backend.Services
                 return null;
             }
         }
+        public async Task<bool> DeleteFile(string fileUrl)
+        {
+            try
+            {
+                var uri = new Uri(fileUrl);
+                string containerName = uri.Segments[1].TrimEnd('/'); // e.g. "profilepics"
+                string blobName = string.Join("", uri.Segments.Skip(2)); // remaining path after container
+
+                var blobServiceClient = new BlobServiceClient(connectionstring);
+                var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = containerClient.GetBlobClient(blobName);
+
+                var response = await blobClient.DeleteIfExistsAsync();
+
+                Console.WriteLine($"Deleted: {fileUrl} -> {response.Value}");
+                return response.Value; // true if deleted, false if blob didn't exist
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Delete error: {ex.Message}");
+                return false;
+            }
+        }
+
 
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using whatsapp_clone_backend;
 using whatsapp_clone_backend.Data;
+using whatsapp_clone_backend.Hubs;
 using whatsapp_clone_backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,11 +20,12 @@ builder.Services.AddScoped<DbContext>(provider =>
 
 // Register DL class
 builder.Services.AddScoped<Login_DL>();
+
 builder.Services.AddScoped<Message_DL>();
 
 builder.Services.AddScoped<SearchUser_DL>();
 builder.Services.AddScoped<Contact_DL>();
-
+builder.Services.AddScoped<DpSet_DL>();
 
 builder.Services.AddScoped<Registration_DL>();
 builder.Services.AddScoped<EmailService>();
@@ -31,6 +33,7 @@ builder.Services.AddScoped<EmailService>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
+builder.Services.AddSignalR();
 builder.Services.AddMemoryCache();
 
 
@@ -93,7 +96,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseCors("AllowFrontend");
-
+app.MapHub<ChatHub>("chat-hub");
 
 app.UseHttpsRedirection();
 

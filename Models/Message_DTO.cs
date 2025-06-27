@@ -14,6 +14,7 @@
         public string? voice_url { get; set; }
         public string? caption { get; set; }
         public string? duration { get; set; }
+        public string time { get;  set; }
 
     }
 }

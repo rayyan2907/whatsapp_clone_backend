@@ -16,7 +16,7 @@ namespace whatsapp_clone_backend.Data
             {
                 { "id", id }
             };
-            string query = "select contact_id,last_msg_type,profile_pic_url as contact_dp,first_name,last_name,last_msg_time from contacts c join users u on u.user_id=c.contact_id where c.user_id = @id";
+            string query = "select contact_id as user_id,last_msg_type,profile_pic_url,first_name,last_name,last_msg_time from contacts c join users u on u.user_id=c.contact_id where c.user_id = @id";
 
             return _db.ExecuteQuery<Contact_model>(query, parameters);
         }
