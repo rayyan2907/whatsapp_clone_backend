@@ -116,5 +116,18 @@ namespace whatsapp_clone_backend.Data
             transactions.Add((query2, paramters2));
             return _db.ExecuteTransaction(transactions);
         }
+
+
+        public List<Message_DTO> getMessages(int senderid, int receiverid, int ofsset)
+        {
+            string query = "call getMessages(@senderid,@receiverid,@ofsset)";
+            var parameters = new Dictionary<string, object>
+            {
+                { "senderid", senderid },
+                { "receiverid", receiverid },
+                { "ofsset", ofsset }
+            };
+            return _db.ExecuteQuery<Message_DTO>(query, parameters);
+        }
     }
 }

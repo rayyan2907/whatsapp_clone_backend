@@ -10,7 +10,7 @@ namespace whatsapp_clone_backend.Controllers
 {
     [ApiController]
     [Route("message")]
-    [Authorize]
+    //[Authorize]
     public class MessageController : ControllerBase
     {
         private readonly Message_DL _msg_dl;
@@ -176,9 +176,22 @@ namespace whatsapp_clone_backend.Controllers
 
         [HttpGet]
         [Route("getMessage")]
-        public IActionResult getMessage([FromQuery] int id)
+        public IActionResult getMessage([FromQuery] int id, [FromQuery] int ofsset)
         {
-            return Ok();
+            Console.WriteLine("fumction called");
+            var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
+
+            if (userIdClaim == null)
+                return Unauthorized("You have been Logged Out.");
+
+            int user_id = int.Parse(userIdClaim.Value);
+            if (user_id == null)
+                return Unauthorized("You have been Logged Out.");
+
+
+            var messages = _msg_dl.getMessages(user_id, id, ofsset);
+            Console.WriteLine("got messages "+messages.Count);
+            return Ok(messages);
         }
 
 
