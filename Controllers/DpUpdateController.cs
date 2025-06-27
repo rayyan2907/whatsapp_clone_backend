@@ -30,7 +30,7 @@ namespace whatsapp_clone_backend.Controllers
         [Route("dpUpdate")]
         public async Task<IActionResult> uploadDP([FromForm] ProfilePic pic)
         {
-            Console.WriteLine("fumction called");
+            Console.WriteLine("dp change function called");
             var userIdClaim = User.FindFirst("user_id"); // custom claim name from token
 
             if (userIdClaim == null)
@@ -73,11 +73,13 @@ namespace whatsapp_clone_backend.Controllers
                 bool isDpUpload = _dp_dl.changePicture(url,user_id);
                 if (isDpUpload)
                 {
-                    if(oldUrl!= null)
+                    string newUrl = _dp_dl.getNewDp(user_id);
+                    if (oldUrl!= null)
                     {
-                        _=_azure.DeleteFile(oldUrl);
+                        
+                        _ =_azure.DeleteFile(oldUrl);
                     }
-                    return Ok(new { message = "Profile Photo Uploaded" });
+                    return Ok(new { message = "Profile Photo Uploaded" , profile_pic_url= newUrl });
                 }
                 else
                 {
