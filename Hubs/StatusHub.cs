@@ -69,7 +69,6 @@ namespace whatsapp_clone_backend.Hubs
 
             await base.OnDisconnectedAsync(exception);
         }
-iterator 
 
     }
 
