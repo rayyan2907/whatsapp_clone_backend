@@ -74,7 +74,8 @@ builder.Services.AddCors(options =>
             "https://whatsapp-react-c3s9-h7p8d7y1j-rayyan2907s-projects.vercel.app",
             "https://whatsapp-react-c3s9-bu6kwln7q-rayyan2907s-projects.vercel.app",
             "https://whatsapp-react-c3s9-rayyan2907s-projects.vercel.app",
-            "https://clonechatapp.netlify.app"
+            "https://clonechatapp.netlify.app",
+            "http://localhost:63774"
 
         )
         .AllowAnyHeader()
