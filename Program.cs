@@ -97,6 +97,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 app.MapHub<ChatHub>("chat-hub");
+app.MapHub<StatusHub>("/statusHub"); 
+
 
 app.UseHttpsRedirection();
 
