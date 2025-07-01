@@ -25,19 +25,10 @@ namespace whatsapp_clone_backend.Hubs
                 Console.WriteLine(user_id + "is online");
                 // Notify others that this user is online
                 await Clients.Others.SendAsync("UserStatusChanged", user_id, true);
-
+                
                
             }
-            if (!string.IsNullOrEmpty(user_id))
-            {
-                // ...
-                await Clients.Caller.SendAsync("ConnectionConfirmed", "✅ StatusHub connected!");
-            }
-            else
-            {
-                await Clients.Caller.SendAsync("ConnectionConfirmed", "❌ user_id missing!");
-            }
-
+            
 
             await base.OnConnectedAsync();
         }
@@ -48,7 +39,37 @@ namespace whatsapp_clone_backend.Hubs
                 return _userConnections.ContainsKey(userId);
             }
         }
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            var user_id = Context.GetHttpContext()?.Request.Query["user_id"];
+            bool shouldNotifyOffline = false;
 
+            if (!string.IsNullOrEmpty(user_id))
+            {
+                lock (_userConnections)
+                {
+                    if (_userConnections.ContainsKey(user_id))
+                    {
+                        _userConnections[user_id].Remove(Context.ConnectionId);
+
+                        if (_userConnections[user_id].Count == 0)
+                        {
+                            _userConnections.TryRemove(user_id, out _);
+                            shouldNotifyOffline = true; // defer the await outside lock
+                        }
+                    }
+                }
+
+                if (shouldNotifyOffline)
+                {
+                    Console.WriteLine($"{user_id} is now offline");
+                    await Clients.Others.SendAsync("UserStatusChanged", user_id, false);
+                }
+            }
+
+            await base.OnDisconnectedAsync(exception);
+        }
+iterator 
 
     }
 
