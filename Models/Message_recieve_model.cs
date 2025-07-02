@@ -1,6 +1,6 @@
 ﻿namespace whatsapp_clone_backend.Models
 {
-    public class Message_recieve_model
+    public class Message_DTO
     {
         public int message_id {  get; set; }
         public bool is_sent { get; set; }

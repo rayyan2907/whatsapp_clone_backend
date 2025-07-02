@@ -118,7 +118,7 @@ namespace whatsapp_clone_backend.Data
         }
 
 
-        public List<Message_DTO> getMessages(int senderid, int receiverid, int ofsset)
+        public List<Message_recieve_model> getMessages(int senderid, int receiverid, int ofsset)
         {
             string query = "call getMessages(@senderid,@receiverid,@ofsset)";
             var parameters = new Dictionary<string, object>
@@ -127,7 +127,7 @@ namespace whatsapp_clone_backend.Data
                 { "receiverid", receiverid },
                 { "ofsset", ofsset }
             };
-            return _db.ExecuteQuery<Message_DTO>(query, parameters);
+            return _db.ExecuteQuery<Message_recieve_model>(query, parameters);
         }
     }
 }
