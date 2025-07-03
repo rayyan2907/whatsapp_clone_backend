@@ -14,7 +14,7 @@ namespace whatsapp_clone_backend.Data
 
         public bool sendTxtMessage(Text_msg txt)
         {
-
+            Console.WriteLine("query called");
             var transactions = new List<(string, Dictionary<string, Object>)>();
             string query = "insert into message (sender_id,receiver_id,time,type,is_seen) values (@sender_id,@receiver_id,@time,'msg',@is_seen)";
 
@@ -29,6 +29,8 @@ namespace whatsapp_clone_backend.Data
             };
             transactions.Add((query, parameters));
             string query2 = "insert into text_msg (msg_id,text_msg) values (last_insert_id(),@text_msg)";
+            Console.WriteLine(query2);
+            Console.WriteLine(query);
             var paramters2 = new Dictionary<string, object>
             {
                 {"text_msg",txt.text_msg }

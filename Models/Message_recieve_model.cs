@@ -2,8 +2,6 @@
 {
     public class Message_DTO
     {
-        public int message_id {  get; set; }
-        public bool is_sent { get; set; }
         public int sender_id { get; set; }
         public int reciever_id { get; set; }
         public string type { get; set; }
@@ -15,6 +13,6 @@
         public string? caption { get; set; }
         public string? duration { get; set; }
         public string time { get;  set; }
-
+        public bool is_sent { get; set; }
     }
 }

@@ -25,6 +25,8 @@ builder.Services.AddScoped<Message_DL>();
 
 builder.Services.AddScoped<SearchUser_DL>();
 builder.Services.AddScoped<Contact_DL>();
+builder.Services.AddScoped<ChatHub>();
+
 builder.Services.AddScoped<DpSet_DL>();
 
 builder.Services.AddScoped<Registration_DL>();
@@ -38,7 +40,6 @@ builder.Services.AddMemoryCache();
 
 
 
-// Add JWT Authentication (optional now, but needed soon)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -51,6 +52,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 builder.Services.Configure<IISServerOptions>(options =>
@@ -91,8 +107,8 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseCors("AllowFrontend");
-app.MapHub<ChatHub>("chat-hub");
-app.MapHub<StatusHub>("/statusHub"); 
+app.MapHub<ChatHub>("/chatHub");
+app.MapHub<StatusHub>("/statusHub");
 
 
 app.UseHttpsRedirection();

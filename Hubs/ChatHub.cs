@@ -11,6 +11,12 @@ namespace whatsapp_clone_backend.Hubs
     {
         private readonly Message_DL _msg_dl;
 
+        public ChatHub(Message_DL msg_dl)
+        {
+            _msg_dl=msg_dl;
+        }
+
+
         private static readonly ConcurrentDictionary<string, HashSet<string>> _chatConnections = new();
 
         public override async Task OnConnectedAsync()
@@ -18,7 +24,7 @@ namespace whatsapp_clone_backend.Hubs
             Console.WriteLine("[ChatHub] OnConnectedAsync triggered");
 
             var userIdClaim = Context.User?.FindFirst("user_id"); // get from JWT token
-
+            Console.WriteLine("user id is" + userIdClaim);
             if (userIdClaim == null)
             {
                 Console.WriteLine("[ChatHub] Unauthorized connection attempt — no user_id claim");
@@ -27,6 +33,10 @@ namespace whatsapp_clone_backend.Hubs
             }
 
             var userId = userIdClaim.Value;
+
+
+
+
 
             if (string.IsNullOrEmpty(userId))
             {
@@ -78,9 +88,21 @@ namespace whatsapp_clone_backend.Hubs
         }
 
 
-        public async Task SendMessage(Message_recieve_model message)
+        public async Task<bool> SendMessage(Message_recieve_model message)
         {
+            bool is_sent = false;
+            var userIdClaim = Context.User?.FindFirst("user_id");
+            if (userIdClaim == null)
+            {
+                Console.WriteLine("[ChatHub] Unauthorized message attempt");
+                return false;
+            }
+
+            var senderId = userIdClaim.Value;
             MessageService _service = new MessageService(_msg_dl);
+            message.sender_id = Convert.ToInt32(senderId);
+            Console.WriteLine("message is sent by " + message.sender_id);
+
 
             if (message.type == "img")
             {
@@ -96,32 +118,81 @@ namespace whatsapp_clone_backend.Hubs
             }
             else if(message.type=="msg") 
             {
-
+                Text_msg text_Msg = new Text_msg();
+                text_Msg.type = message.type;
+                text_Msg.sender_id= message.sender_id;
+                text_Msg.time = message.time;
+                text_Msg.reciever_id= message.reciever_id;
+                text_Msg.text_msg = message.text_msg;
+                text_Msg.is_seen = _chatConnections.ContainsKey(message.reciever_id.ToString());
+                Console.WriteLine("text msg has " + text_Msg.sender_id.ToString() + text_Msg.text_msg+ " and time is "+text_Msg.time);
+                is_sent = _service.sendtxtMessage(text_Msg);
             }
 
 
 
 
-
-            // Send to recipient
-            if (_chatConnections.TryGetValue(message.sender_id.ToString(), out var connections))
+            if (is_sent)
             {
-                foreach (var conn in connections)
+                // Send to recipient
+                if (_chatConnections.TryGetValue(message.sender_id.ToString(), out var connections))
                 {
-                    await Clients.Client(conn).SendAsync("ReceiveMessage", message);
-                }
-            }
+                    foreach (var conn in connections)
+                    {
+                        var receiverMsg = new Message_DTO
+                        {
+                            sender_id = message.sender_id,
+                            reciever_id = message.reciever_id,
+                            type = message.type,
+                            is_seen = message.is_seen,
+                            text_msg = message.text_msg,
+                            img_url = message.img_url,
+                            video_url = message.video_url,
+                            voice_url = message.voice_url,
+                            caption = message.caption,
+                            duration = message.duration,
+                            time = message.time,
+                            is_sent = true
+                        };
 
-            // Also send to sender (for echo)
-            if (_chatConnections.TryGetValue(message.reciever_id.ToString(), out var senderConnections))
+                        await Clients.Client(conn).SendAsync("ReceiveMessage", receiverMsg);
+                    }
+                }
+
+                // Also send to sender (for echo)
+                if (_chatConnections.TryGetValue(message.reciever_id.ToString(), out var senderConnections))
+                {
+                    foreach (var conn in senderConnections)
+                    {
+                        var senderMsg = new Message_DTO
+                        {
+                            sender_id = message.sender_id,
+                            reciever_id = message.reciever_id,
+                            type = message.type,
+                            is_seen = message.is_seen,
+                            text_msg = message.text_msg,
+                            img_url = message.img_url,
+                            video_url = message.video_url,
+                            voice_url = message.voice_url,
+                            caption = message.caption,
+                            duration = message.duration,
+                            time = message.time,
+                            is_sent = false
+                        };
+
+                        await Clients.Client(conn).SendAsync("ReceiveMessage", senderMsg);
+                    }
+                }
+
+                Console.WriteLine($"Message sent: {message.text_msg}");
+                return true;
+            }
+            else
             {
-                foreach (var conn in senderConnections)
-                {
-                    await Clients.Client(conn).SendAsync("ReceiveMessage", message);
-                }
+                Console.WriteLine("cannot send");
+                return false;
             }
 
-            Console.WriteLine($"Message sent: {message.text_msg}");
         }
 
 
