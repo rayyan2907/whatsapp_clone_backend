@@ -106,7 +106,11 @@ namespace whatsapp_clone_backend.Hubs
 
             if (message.type == "img")
             {
-                    
+                Image_msg image_Msg = new Image_msg();
+                image_Msg.type = message.type;
+                image_Msg.sender_id = message.sender_id;
+                image_Msg.reciever_id=message.reciever_id;
+                image_Msg.image=
             }
             else if (message.type == "video")
             {
