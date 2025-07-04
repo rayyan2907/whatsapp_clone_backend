@@ -81,6 +81,43 @@ namespace whatsapp_clone_backend.Controllers
                 return StatusCode(500, "Database insert failed.");
         }
 
+        [HttpPost("sendvoice")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> SendVoiceMessage([FromForm] Audio_msg _audio)
+        {
+            Console.WriteLine("sendvoice called");
+
+            var userIdClaim = User.FindFirst("user_id");
+            if (userIdClaim == null)
+                return Unauthorized("You have been logged out.");
+
+            _audio.sender_id = int.Parse(userIdClaim.Value);
+
+            if (_audio.voice == null || _audio.voice.Length == 0)
+                return BadRequest("No voice file provided.");
+
+            var allowedTypes = new[] { "audio/mpeg", "audio/wav", "audio/ogg", "audio/aac" };
+            if (!allowedTypes.Contains(_audio.voice.ContentType.ToLower()))
+                Console.WriteLine("format is " + _audio.voice.ContentType);
+                //return BadRequest("Unsupported audio format.");
+
+            _audio.duration = await LengthService.GetAudioDuration(_audio.voice);
+            _audio.voice_url = await _azure.sendVoice(_audio.voice);
+
+            if (string.IsNullOrEmpty(_audio.voice_url))
+                return StatusCode(500, "Audio upload failed.");
+
+            bool isSent = _msg_dl.sendvoiceMessage(_audio);
+
+            if (!isSent)
+                return StatusCode(500, "Database insert failed.");
+
+            // return full message object (can be modified as needed)
+          
+
+            return Ok(_audio.voice_url);
+        }
+
 
     }
 }

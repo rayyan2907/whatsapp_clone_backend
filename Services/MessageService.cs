@@ -35,57 +35,7 @@ namespace whatsapp_clone_backend.Services
        
 
        
-        public async Task<string> sendvoiceMessage(Audio_msg _audio)
-        {
-            Console.Write("audio service called");
-
-            if (!string.IsNullOrEmpty(_audio.voice_byte))
-            {
-                Console.WriteLine("conversion called");
-                _audio.voice = Base64ToFormFile(_audio.voice_byte, _audio.file_name ?? $"voice_{Guid.NewGuid()}.aac");
-            }
-            else
-            {
-                Console.WriteLine("bytes not recieved");
-            }
-
-            if (_audio.voice == null || _audio.voice.Length == 0)
-            {
-                Console.WriteLine("no audio here");
-                return "";
-            }
-
-
-            var allowedTypes = new[] { "audio/mpeg", "audio/wav", "audio/ogg", "audio/aac" };
-            if (!allowedTypes.Contains(_audio.voice.ContentType.ToLower()))
-            {
-                Console.WriteLine("format issue");
-                return "";
-
-            }
-
-            _audio.duration = await LengthService.GetAudioDuration(_audio.voice);
-            Console.WriteLine(_audio.duration);
-            _audio.voice_url = await _azure.sendVoice(_audio.voice);
-
-            if (_audio.voice_url == null)
-            {
-                Console.WriteLine("error in uploading");
-                return "";
-            }
-
-            bool isSend = _msg_dl.sendvoiceMessage(_audio);
-            if (isSend)
-            {
-                return _audio.voice_url;
-            }
-            else
-            {
-                Console.WriteLine("error in data layer");
-                return "";
-            }
-        }
-
+     
         public async Task<string> sendvideoMessage( Video_msg _video)
         {
 

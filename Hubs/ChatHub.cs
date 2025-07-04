@@ -149,14 +149,11 @@ namespace whatsapp_clone_backend.Hubs
                 audio_Msg.sender_id=message.sender_id;
                 audio_Msg.reciever_id= message.reciever_id;
                 audio_Msg.duration= message.duration;
-                audio_Msg.voice = message.voice;
-                audio_Msg.voice_byte = message.voice_byte;
-                audio_Msg.file_name = message.file_name;
+                audio_Msg.voice_url = message.voice_url ;
                 audio_Msg.is_seen = _chatConnections.ContainsKey(message.reciever_id.ToString());
 
 
                 Console.WriteLine("audio msg from user " + message.sender_id);
-                message.voice_url = await _service.sendvoiceMessage(audio_Msg);
                 is_sent= !string.IsNullOrEmpty(message.voice_url);
 
 
