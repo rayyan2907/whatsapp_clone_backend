@@ -113,9 +113,16 @@ namespace whatsapp_clone_backend.Controllers
                 return StatusCode(500, "Database insert failed.");
 
             // return full message object (can be modified as needed)
-          
 
-            return Ok(_audio.voice_url);
+
+            return Ok(new
+            {
+                recieverId = _audio.reciever_id,
+                type = _audio.type,
+                voice_url = _audio.voice_url,
+                time = _audio.time,
+                is_seen = _audio.is_seen,
+            });
         }
 
 
