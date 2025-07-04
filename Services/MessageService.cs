@@ -32,87 +32,104 @@ namespace whatsapp_clone_backend.Services
         }
 
       
-        public async Task<bool> sendimgMessage( Image_msg _img)
+        public async Task<string> sendimgMessage( Image_msg _img)
         {
           
 
           
             if (_img.image == null || _img.image.Length == 0)
             {
-                return false;
+                return "";
             }
 
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
             if (!allowedTypes.Contains(_img.image.ContentType.ToLower()))
-                return false;
+                return "";
 
             _img.img_url = await _azure.sendImg(_img.image);
 
             if (_img.img_url == null)
             {
-                return false;
+                return "";
             }
 
             bool isSend = _msg_dl.sendimgMessage(_img);
             if (isSend)
             {
-                return true;
+                return _img.img_url;
             }
             else
             {
-                return false;
+                return "";
             }
         }
 
 
        
-        public async Task<bool> sendvoiceMessage(Audio_msg _audio)
+        public async Task<string> sendvoiceMessage(Audio_msg _audio)
         {
-           
+            Console.Write("audio service called");
+
+            if (!string.IsNullOrEmpty(_audio.voice_byte))
+            {
+                Console.WriteLine("conversion called");
+                _audio.voice = Base64ToFormFile(_audio.voice_byte, _audio.file_name ?? $"voice_{Guid.NewGuid()}.aac");
+            }
+            else
+            {
+                Console.WriteLine("bytes not recieved");
+            }
 
             if (_audio.voice == null || _audio.voice.Length == 0)
             {
-                return false;
+                Console.WriteLine("no audio here");
+                return "";
             }
 
 
-            var allowedTypes = new[] { "audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4" };
+            var allowedTypes = new[] { "audio/mpeg", "audio/wav", "audio/ogg", "audio/aac" };
             if (!allowedTypes.Contains(_audio.voice.ContentType.ToLower()))
-                return false;
+            {
+                Console.WriteLine("format issue");
+                return "";
 
-            _audio.duration = LengthService.GetAudioDuration(_audio.voice);
+            }
+
+            _audio.duration = await LengthService.GetAudioDuration(_audio.voice);
             Console.WriteLine(_audio.duration);
             _audio.voice_url = await _azure.sendVoice(_audio.voice);
 
             if (_audio.voice_url == null)
             {
-                return false;
+                Console.WriteLine("error in uploading");
+                return "";
             }
 
             bool isSend = _msg_dl.sendvoiceMessage(_audio);
             if (isSend)
             {
-                return true;
+                return _audio.voice_url;
             }
             else
             {
-                return false;
+                Console.WriteLine("error in data layer");
+                return "";
             }
         }
 
-        public async Task<bool> sendvideoMessage( Video_msg _video)
+        public async Task<string> sendvideoMessage( Video_msg _video)
         {
 
             if (_video.video == null || _video.video.Length == 0)
             {
-                return false;
+                return "";
             }
 
 
             var allowedVideoTypes = new[] { "video/mp4", "video/x-msvideo", "video/x-matroska", "video/webm", "video/quicktime" };
 
             if (!allowedVideoTypes.Contains(_video.video.ContentType.ToLower()))
-                return false;
+                return "";
 
             _video.duration = LengthService.GetVideoDuration(_video.video);
 
@@ -121,17 +138,36 @@ namespace whatsapp_clone_backend.Services
 
             if (_video.video_url == null)
             {
-                return false;
+                return "";
             }
 
             bool isSend = _msg_dl.sendvideoMessage(_video);
             if (isSend)
             {
-                return true;
+                return _video.video_url;
             }
             else
             {
-                return false;
+                return "";
+            }
+        }
+
+        //audio conversion service
+        public static IFormFile? Base64ToFormFile(string base64String, string fileName)
+        {
+            try
+            {
+                var bytes = Convert.FromBase64String(base64String);
+                var stream = new MemoryStream(bytes);
+                return new FormFile(stream, 0, bytes.Length, "voice", fileName)
+                {
+                    Headers = new HeaderDictionary(),
+                    ContentType = "audio/aac"
+                };
+            }
+            catch
+            {
+                return null;
             }
         }
 

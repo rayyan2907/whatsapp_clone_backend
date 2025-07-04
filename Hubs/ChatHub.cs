@@ -88,8 +88,9 @@ namespace whatsapp_clone_backend.Hubs
         }
 
 
-        public async Task<bool> SendMessage(Message_recieve_model message)
+        public async Task<bool> SendMessage(_Message message)
         {
+         
             bool is_sent = false;
             var userIdClaim = Context.User?.FindFirst("user_id");
             if (userIdClaim == null)
@@ -110,14 +111,55 @@ namespace whatsapp_clone_backend.Hubs
                 image_Msg.type = message.type;
                 image_Msg.sender_id = message.sender_id;
                 image_Msg.reciever_id=message.reciever_id;
-                image_Msg.image=
+                image_Msg.image = message.img;
+                image_Msg.time = message.time;
+                image_Msg.caption=message.caption;
+                image_Msg.is_seen = _chatConnections.ContainsKey(message.reciever_id.ToString());
+
+                Console.WriteLine("image msg recieved from user " + message.sender_id);
+                message.img_url = await _service.sendimgMessage(image_Msg);
+                is_sent=!string.IsNullOrEmpty(message.img_url);
+
+
+
             }
             else if (message.type == "video")
             {
+                Video_msg video_Msg = new Video_msg();
+                video_Msg.type = message.type;
+                video_Msg.sender_id = message.sender_id;
+                video_Msg.reciever_id= message.reciever_id;
+                video_Msg.time=message.time;
+                video_Msg.caption=message.caption;
+                video_Msg.duration=message.duration;
+                video_Msg.is_seen= _chatConnections.ContainsKey(message.reciever_id.ToString());
+
+                video_Msg.video = message.video;
+
+                Console.WriteLine("a video received from user " + message.sender_id);
+                message.video_url = await _service.sendvideoMessage(video_Msg);
+                is_sent = !string.IsNullOrEmpty(message.video_url);
 
             }
             else if (message.type == "voice")
             {
+
+                Audio_msg audio_Msg = new Audio_msg();
+                audio_Msg.type = message.type;
+                audio_Msg.time= message.time;
+                audio_Msg.sender_id=message.sender_id;
+                audio_Msg.reciever_id= message.reciever_id;
+                audio_Msg.duration= message.duration;
+                audio_Msg.voice = message.voice;
+                audio_Msg.voice_byte = message.voice_byte;
+                audio_Msg.file_name = message.file_name;
+                audio_Msg.is_seen = _chatConnections.ContainsKey(message.reciever_id.ToString());
+
+
+                Console.WriteLine("audio msg from user " + message.sender_id);
+                message.voice_url = await _service.sendvoiceMessage(audio_Msg);
+                is_sent= !string.IsNullOrEmpty(message.voice_url);
+
 
             }
             else if(message.type=="msg") 
@@ -148,7 +190,7 @@ namespace whatsapp_clone_backend.Hubs
                             sender_id = message.sender_id,
                             reciever_id = message.reciever_id,
                             type = message.type,
-                            is_seen = message.is_seen,
+                            is_seen = _chatConnections.ContainsKey(message.reciever_id.ToString()),
                             text_msg = message.text_msg,
                             img_url = message.img_url,
                             video_url = message.video_url,
@@ -173,7 +215,7 @@ namespace whatsapp_clone_backend.Hubs
                             sender_id = message.sender_id,
                             reciever_id = message.reciever_id,
                             type = message.type,
-                            is_seen = message.is_seen,
+                            is_seen = _chatConnections.ContainsKey(message.reciever_id.ToString()),
                             text_msg = message.text_msg,
                             img_url = message.img_url,
                             video_url = message.video_url,
