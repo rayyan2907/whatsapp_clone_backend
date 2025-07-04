@@ -39,6 +39,10 @@ builder.Services.AddSignalR();
 builder.Services.AddMemoryCache();
 
 
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10 MB or more
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
