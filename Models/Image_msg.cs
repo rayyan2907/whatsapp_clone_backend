@@ -6,5 +6,7 @@
         public IFormFile image {  get; set; }
         public string? caption {  get; set; }
 
+        public string? image_byte { get; set; }
+        public string? file_name { get; set; }
     }
 }

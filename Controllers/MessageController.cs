@@ -14,6 +14,7 @@ namespace whatsapp_clone_backend.Controllers
     public class MessageController : ControllerBase
     {
         private readonly Message_DL _msg_dl;
+        private Azure_services _azure = new Azure_services();
 
         public MessageController (Message_DL msg_dl)
         {
@@ -44,6 +45,40 @@ namespace whatsapp_clone_backend.Controllers
             }
             Console.WriteLine("got messages "+messages.Count);
             return Ok(messages);
+        }
+
+
+        [HttpPost]
+        [Route("sendimg")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> sendimgMessage([FromForm] Image_msg _img)
+        {
+            var userIdClaim = User.FindFirst("user_id");
+            if (userIdClaim == null)
+                return Unauthorized("You have been logged out.");
+
+            int userId = int.Parse(userIdClaim.Value);
+            _img.sender_id = userId; // Assign sender_id from token
+
+            if (_img.image == null || _img.image.Length == 0)
+                return BadRequest("No image file provided.");
+
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
+            if (!allowedTypes.Contains(_img.image.ContentType.ToLower()))
+                return BadRequest("Unsupported image type.");
+
+            var azureService = new Azure_services();
+            _img.img_url = await azureService.sendImg(_img.image);
+
+            if (string.IsNullOrEmpty(_img.img_url))
+                return StatusCode(500, "Image upload failed.");
+
+            bool isSend = _msg_dl.sendimgMessage(_img);
+
+            if (isSend)
+                return Ok( _img.img_url );
+            else
+                return StatusCode(500, "Database insert failed.");
         }
 
 

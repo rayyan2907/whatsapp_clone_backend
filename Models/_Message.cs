@@ -11,6 +11,7 @@
         public IFormFile? video { get; set; }
         public IFormFile? voice { get; set; }
         public string? voice_byte { get; set; }
+        public string? image_byte { get; set; }
         public string? file_name { get; set; }
         public string? img_url { get; set; }
         public string? video_url { get; set; }

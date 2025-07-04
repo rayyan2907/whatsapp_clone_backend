@@ -111,13 +111,12 @@ namespace whatsapp_clone_backend.Hubs
                 image_Msg.type = message.type;
                 image_Msg.sender_id = message.sender_id;
                 image_Msg.reciever_id=message.reciever_id;
-                image_Msg.image = message.img;
+                image_Msg.img_url = message.img_url;
                 image_Msg.time = message.time;
                 image_Msg.caption=message.caption;
                 image_Msg.is_seen = _chatConnections.ContainsKey(message.reciever_id.ToString());
 
                 Console.WriteLine("image msg recieved from user " + message.sender_id);
-                message.img_url = await _service.sendimgMessage(image_Msg);
                 is_sent=!string.IsNullOrEmpty(message.img_url);
 
 

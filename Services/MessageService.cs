@@ -32,38 +32,7 @@ namespace whatsapp_clone_backend.Services
         }
 
       
-        public async Task<string> sendimgMessage( Image_msg _img)
-        {
-          
-
-          
-            if (_img.image == null || _img.image.Length == 0)
-            {
-                return "";
-            }
-
-            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
-            if (!allowedTypes.Contains(_img.image.ContentType.ToLower()))
-                return "";
-
-            _img.img_url = await _azure.sendImg(_img.image);
-
-            if (_img.img_url == null)
-            {
-                return "";
-            }
-
-            bool isSend = _msg_dl.sendimgMessage(_img);
-            if (isSend)
-            {
-                return _img.img_url;
-            }
-            else
-            {
-                return "";
-            }
-        }
-
+       
 
        
         public async Task<string> sendvoiceMessage(Audio_msg _audio)
@@ -170,6 +139,25 @@ namespace whatsapp_clone_backend.Services
                 return null;
             }
         }
+        //image conversion method
+        public static IFormFile? Base64ToImageFormFile(string base64String, string fileName, string contentType = "image/jpeg")
+        {
+            try
+            {
+                var bytes = Convert.FromBase64String(base64String);
+                var stream = new MemoryStream(bytes);
+                return new FormFile(stream, 0, bytes.Length, "image", fileName)
+                {
+                    Headers = new HeaderDictionary(),
+                    ContentType = contentType
+                };
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
 
     }
 }
