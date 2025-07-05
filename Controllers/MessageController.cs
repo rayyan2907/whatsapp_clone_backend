@@ -82,8 +82,7 @@ namespace whatsapp_clone_backend.Controllers
         }
 
         [HttpPost("sendvoice")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> SendVoiceMessage([FromForm] Audio_msg _audio)
+        public async Task<IActionResult> SendVoiceMessage([FromBody] Audio_msg _audio)
         {
             Console.WriteLine("sendvoice called");
 
@@ -92,6 +91,27 @@ namespace whatsapp_clone_backend.Controllers
                 return Unauthorized("You have been logged out.");
 
             _audio.sender_id = int.Parse(userIdClaim.Value);
+
+
+
+            try
+            {
+                // Decode base64 to byte array
+                byte[] voiceBytes = Convert.FromBase64String(_audio.voice_byte!);
+
+                // Convert to MemoryStream -> IFormFile
+                var stream = new MemoryStream(voiceBytes);
+                _audio.voice = new FormFile(stream, 0, voiceBytes.Length, "voice", _audio.file_name)
+                {
+                    Headers = new HeaderDictionary(),
+                    ContentType = "audio/aac"
+                };
+            }
+            catch (FormatException)
+            {
+                return BadRequest("Invalid base64 string.");
+            }
+
 
             if (_audio.voice == null || _audio.voice.Length == 0)
                 return BadRequest("No voice file provided.");
