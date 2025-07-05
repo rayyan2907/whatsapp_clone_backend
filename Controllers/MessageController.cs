@@ -87,11 +87,11 @@ namespace whatsapp_clone_backend.Controllers
         {
             Console.WriteLine("sendvoice called");
 
-            //var userIdClaim = User.FindFirst("user_id");
-            //if (userIdClaim == null)
-            //    return Unauthorized("You have been logged out.");
+            var userIdClaim = User.FindFirst("user_id");
+            if (userIdClaim == null)
+                return Unauthorized("You have been logged out.");
 
-            // _audio.sender_id = int.Parse(userIdClaim.Value);
+            _audio.sender_id = int.Parse(userIdClaim.Value);
             _audio.sender_id = 19;
 
 
@@ -147,31 +147,7 @@ namespace whatsapp_clone_backend.Controllers
             });
         }
 
-        [HttpPost]
-        [Route("send")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> sendvoiceMessage([FromForm] Audio_msg _audio)
-        {
-
-
-
-            _audio.duration = await LengthService.GetAudioDuration(_audio.voice);
-            Console.WriteLine(_audio.duration);
-            _audio.voice_url = await _azure.sendVoice(_audio.voice);
-
-            if (_audio.voice_url == null)
-            {
-                return BadRequest(new { message = "error in uploading image" });
-                
-            }
-
-            bool isSend = _msg_dl.sendvoiceMessage(_audio);
-            if (isSend)
-            {
-                return Ok(isSend);
-            }
-            return BadRequest();
-        }
+        
 
     }
 }
