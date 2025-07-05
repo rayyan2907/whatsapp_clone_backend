@@ -87,9 +87,9 @@ namespace whatsapp_clone_backend.Controllers
         {
             Console.WriteLine("sendvoice called");
 
-            var userIdClaim = User.FindFirst("user_id");
-            if (userIdClaim == null)
-                return Unauthorized("You have been logged out.");
+            //var userIdClaim = User.FindFirst("user_id");
+            //if (userIdClaim == null)
+            //    return Unauthorized("You have been logged out.");
 
             // _audio.sender_id = int.Parse(userIdClaim.Value);
             _audio.sender_id = 19;
