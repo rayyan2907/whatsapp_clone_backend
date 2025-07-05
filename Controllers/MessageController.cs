@@ -10,13 +10,13 @@ namespace whatsapp_clone_backend.Controllers
 {
     [ApiController]
     [Route("message")]
-   // [Authorize]
+    // [Authorize]
     public class MessageController : ControllerBase
     {
         private readonly Message_DL _msg_dl;
         private Azure_services _azure = new Azure_services();
 
-        public MessageController (Message_DL msg_dl)
+        public MessageController(Message_DL msg_dl)
         {
             _msg_dl = msg_dl;
         }
@@ -43,7 +43,7 @@ namespace whatsapp_clone_backend.Controllers
                 Console.WriteLine("got no messages (null)");
                 return Ok(new List<object>()); // Return empty list to prevent Flutter errors
             }
-            Console.WriteLine("got messages "+messages.Count);
+            Console.WriteLine("got messages " + messages.Count);
             return Ok(messages);
         }
 
@@ -76,7 +76,7 @@ namespace whatsapp_clone_backend.Controllers
             bool isSend = _msg_dl.sendimgMessage(_img);
 
             if (isSend)
-                return Ok( _img.img_url );
+                return Ok(_img.img_url);
             else
                 return StatusCode(500, "Database insert failed.");
         }
@@ -121,7 +121,7 @@ namespace whatsapp_clone_backend.Controllers
             var allowedTypes = new[] { "audio/mpeg", "audio/wav", "audio/ogg", "audio/aac" };
             if (!allowedTypes.Contains(_audio.voice.ContentType.ToLower()))
                 Console.WriteLine("format is " + _audio.voice.ContentType);
-                //return BadRequest("Unsupported audio format.");
+            //return BadRequest("Unsupported audio format.");
 
             _audio.duration = await LengthService.GetAudioDuration(_audio.voice);
             _audio.voice_url = await _azure.sendVoice(_audio.voice);
@@ -147,6 +147,31 @@ namespace whatsapp_clone_backend.Controllers
             });
         }
 
+        [HttpPost]
+        [Route("sendvoice")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> sendvoiceMessage([FromForm] Audio_msg _audio)
+        {
+
+
+
+            _audio.duration = await LengthService.GetAudioDuration(_audio.voice);
+            Console.WriteLine(_audio.duration);
+            _audio.voice_url = await _azure.sendVoice(_audio.voice);
+
+            if (_audio.voice_url == null)
+            {
+                return BadRequest(new { message = "error in uploading image" });
+                
+            }
+
+            bool isSend = _msg_dl.sendvoiceMessage(_audio);
+            if (isSend)
+            {
+                return Ok(isSend);
+            }
+            return BadRequest();
+        }
 
     }
 }
