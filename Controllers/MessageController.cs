@@ -10,7 +10,7 @@ namespace whatsapp_clone_backend.Controllers
 {
     [ApiController]
     [Route("message")]
-    [Authorize]
+   // [Authorize]
     public class MessageController : ControllerBase
     {
         private readonly Message_DL _msg_dl;
@@ -81,7 +81,8 @@ namespace whatsapp_clone_backend.Controllers
                 return StatusCode(500, "Database insert failed.");
         }
 
-        [HttpPost("sendvoice")]
+        [HttpPost]
+        [Route("sendvoice")]
         public async Task<IActionResult> SendVoiceMessage([FromBody] Audio_msg _audio)
         {
             Console.WriteLine("sendvoice called");
