@@ -123,7 +123,7 @@ namespace whatsapp_clone_backend.Controllers
                 Console.WriteLine("format is " + _audio.voice.ContentType);
             //return BadRequest("Unsupported audio format.");
 
-            _audio.duration = await LengthService.GetAudioDuration(_audio.voice);
+           // _audio.duration = await LengthService.GetAudioDuration(_audio.voice);
             _audio.voice_url = await _azure.sendVoice(_audio.voice);
 
             if (string.IsNullOrEmpty(_audio.voice_url))
