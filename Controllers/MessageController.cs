@@ -148,7 +148,7 @@ namespace whatsapp_clone_backend.Controllers
         }
 
         [HttpPost]
-        [Route("sendvoice")]
+        [Route("send")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> sendvoiceMessage([FromForm] Audio_msg _audio)
         {
