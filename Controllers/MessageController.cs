@@ -10,7 +10,7 @@ namespace whatsapp_clone_backend.Controllers
 {
     [ApiController]
     [Route("message")]
-     //[Authorize]
+     [Authorize]
     public class MessageController : ControllerBase
     {
         private readonly Message_DL _msg_dl;
